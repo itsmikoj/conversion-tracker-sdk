@@ -29,6 +29,7 @@ export { NetworkService, NetworkStatus, NetworkType } from './services/NetworkSe
 export { Logger } from './utils/Logger';
 export { Crypto } from './utils/Crypto';
 export { Validator } from './utils/Validator';
+export { getMetaConfigFromExpo } from './utils/ExpoConfigHelper';
 
 // Hooks
 export { useConversionTracker } from './hooks/useConversionTracker';

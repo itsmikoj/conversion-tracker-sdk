@@ -8,11 +8,14 @@ export interface ProviderConfig {
 export interface TrackerConfig {
   providers: {
     meta?: ProviderConfig & {
-      pixelId: string;
+      appId: string;
+      clientToken: string;
+      pixelId?: string;  // Optional: only needed for web pixels or Conversions API
       accessToken?: string;
       testEventCode?: string;
       enableAutoLogging?: boolean;
       enableAdvertiserTracking?: boolean;
+      enableConversionsAPI?: boolean;
     };
     googleAnalytics?: ProviderConfig & {
       measurementId: string;

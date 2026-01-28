@@ -95,15 +95,16 @@ export class Validator {
 
     // Validate Meta provider config
     if (config.providers.meta?.enabled) {
-      if (!config.providers.meta.pixelId) {
-        errors.push('Meta pixel ID is required');
-      }
+      // Only appId and clientToken are required
+      // pixelId is optional (only needed for web pixels or advanced tracking)
       if (!config.providers.meta.appId) {
         errors.push('Meta app ID is required');
       }
       if (!config.providers.meta.clientToken) {
         errors.push('Meta client token is required');
       }
+      // pixelId is optional
+      // accessToken is optional (only for Conversions API)
     }
 
     return {

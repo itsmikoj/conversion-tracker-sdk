@@ -3,10 +3,14 @@ import { View, Button, Text, StyleSheet } from 'react-native';
 import { 
   useConversionTracker, 
   useEventTracker, 
-  EventType 
+  EventType,
+  getMetaConfigFromExpo  // ✨ Helper automático
 } from '@your-org/conversion-tracker-sdk';
 
 export default function App() {
+  // ✨ Auto-carga las keys desde app.json
+  const metaConfig = getMetaConfigFromExpo();
+
   const { 
     isInitialized, 
     track, 
@@ -18,25 +22,15 @@ export default function App() {
     providers: {
       meta: {
         enabled: true,
+        ...metaConfig,  // ✨ Aquí se cargan appId y clientToken automáticamente
         
-        // REQUIRED
-        appId: 'YOUR_FB_APP_ID',
-        clientToken: 'YOUR_CLIENT_TOKEN',
-        
-        // OPTIONAL - Only if using Conversions API
-        pixelId: 'YOUR_PIXEL_ID',           // Optional
-        accessToken: 'YOUR_ACCESS_TOKEN',   // Optional
-        testEventCode: 'TEST12345',         // Optional, for testing
-        enableConversionsAPI: false,        // Set to true only if you have pixelId + accessToken
+        // Solo agrega lo opcional si lo necesitas:
+        // pixelId: 'YOUR_PIXEL_ID',
+        // accessToken: 'YOUR_ACCESS_TOKEN',
+        // enableConversionsAPI: true,
       },
     },
-    batchSize: 10,
-    batchInterval: 5000,
-    maxQueueSize: 100,
-    enableATT: true,
-    hashUserData: true,
     debug: __DEV__,
-    logLevel: __DEV__ ? 'debug' : 'error',
   });
 
   const {
@@ -61,10 +55,6 @@ export default function App() {
       contentType: 'app_open',
       contentId: 'home',
     });
-
-    // Log stats
-    const stats = getStats();
-    console.log('Tracker stats:', stats);
   };
 
   const handleLogin = async () => {
@@ -103,6 +93,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Conversion Tracker Demo</Text>
+      <Text style={styles.subtitle}>Auto-Config Enabled ✨</Text>
       
       <Button title="Login" onPress={handleLogin} />
       <Button title="View Product" onPress={handleViewProduct} />
@@ -123,6 +114,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
     marginBottom: 20,
   },
 });

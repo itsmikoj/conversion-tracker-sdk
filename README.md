@@ -20,18 +20,20 @@ Enterprise-grade conversion tracking SDK for React Native with Meta Ads, Google 
 ### From Private GitHub Repository
 
 ```bash
-# Add to package.json
-{
-  "dependencies": {
-    "@your-org/conversion-tracker-sdk": "github:your-org/conversion-tracker-sdk#v1.0.0"
-  }
-}
+# Instalación simple - instala automáticamente todas las dependencias
+npm install @itsmikoj/conversation-tracker-sdk
 
-# Install
-npm install
-# or
-yarn install
+# o
+yarn add @itsmikoj/conversation-tracker-sdk
 ```
+
+**Dependencias instaladas automáticamente:**
+- ✅ `react-native-fbsdk-next`
+- ✅ `expo-tracking-transparency`
+- ✅ `@react-native-async-storage/async-storage`
+- ✅ `expo-constants`
+
+**No necesitas instalar nada más manualmente.**
 
 ### Authentication
 
@@ -80,23 +82,23 @@ npm install react-native-fbsdk-next expo-tracking-transparency @react-native-asy
 ### 2. Initialize in App.tsx
 
 ```typescript
-import { useConversionTracker } from '@your-org/conversion-tracker-sdk';
-import { EventType } from '@your-org/conversion-tracker-sdk';
+// ✅ Importación correcta (sin /src)
+import { useConversionTracker, getMetaConfigFromExpo } from '@itsmikoj/conversation-tracker-sdk';
+import { EventType } from '@itsmikoj/conversation-tracker-sdk';
 
 function App() {
   const { isInitialized, track, trackPurchase, requestTracking } = useConversionTracker({
     providers: {
       meta: {
         enabled: true,
-        pixelId: 'YOUR_PIXEL_ID',
-        appId: 'YOUR_FB_APP_ID',
-        clientToken: 'YOUR_CLIENT_TOKEN',
-        accessToken: 'YOUR_ACCESS_TOKEN', // Optional, for Conversions API
-        enableConversionsAPI: true,
+        ...getMetaConfigFromExpo(),  // ✨ Auto-carga appId y clientToken
+        
+        // OPCIONAL: Solo si usas Conversions API
+        // pixelId: 'YOUR_PIXEL_ID',
+        // accessToken: 'YOUR_ACCESS_TOKEN',
+        // enableConversionsAPI: true,
       },
     },
-    batchSize: 10,
-    batchInterval: 5000,
     debug: __DEV__,
   });
 
@@ -117,7 +119,8 @@ function App() {
 ### 3. Track Events
 
 ```typescript
-import { useEventTracker } from '@your-org/conversion-tracker-sdk';
+// ✅ Importación correcta
+import { useEventTracker } from '@itsmikoj/conversation-tracker-sdk';
 
 function ProductScreen({ productId, price }) {
   const { trackAddToCart, trackViewContent } = useEventTracker();
@@ -179,9 +182,15 @@ const tracker = ConversionTracker.getInstance({
   providers: {
     meta: {
       enabled: true,
-      pixelId: 'YOUR_PIXEL_ID',
+      
+      // Required
       appId: 'YOUR_FB_APP_ID',
       clientToken: 'YOUR_CLIENT_TOKEN',
+      
+      // Optional
+      pixelId: 'YOUR_PIXEL_ID',           // Only for Conversions API
+      accessToken: 'YOUR_ACCESS_TOKEN',   // Only for Conversions API
+      enableConversionsAPI: false,        // Set true if using CAPI
     },
   },
 });
@@ -322,3 +331,64 @@ MIT
 For issues and questions:
 - GitHub Issues: https://github.com/your-org/conversion-tracker-sdk/issues
 - Documentation: https://your-org.github.io/conversion-tracker-sdk
+
+---
+
+## 🚀 Configuración Simplificada (Sin Repetir Keys)
+
+### **Opción 1: Auto-Config desde app.json**
+
+```typescript
+import { useConversionTracker, getMetaConfigFromExpo } from '@your-org/conversion-tracker-sdk';
+
+const metaConfig = getMetaConfigFromExpo(); // Lee automáticamente de app.json
+
+const { isInitialized } = useConversionTracker({
+  providers: {
+    meta: {
+      enabled: true,
+      ...metaConfig,  // ✨ Auto-carga appId y clientToken
+    },
+  },
+});
+```
+
+### **Opción 2: Variables de Entorno**
+
+```bash
+# .env
+META_APP_ID=123456789012345
+META_CLIENT_TOKEN=abc123def456
+```
+
+```javascript
+// app.config.js
+export default {
+  expo: {
+    plugins: [
+      ['react-native-fbsdk-next', {
+        appID: process.env.META_APP_ID,
+        clientToken: process.env.META_CLIENT_TOKEN,
+      }]
+    ]
+  }
+};
+```
+
+```typescript
+// App.tsx
+import { META_APP_ID, META_CLIENT_TOKEN } from '@env';
+
+useConversionTracker({
+  providers: {
+    meta: {
+      enabled: true,
+      appId: META_APP_ID,
+      clientToken: META_CLIENT_TOKEN,
+    },
+  },
+});
+```
+
+Ver guía completa: [`docs/ENVIRONMENT_SETUP.md`](docs/ENVIRONMENT_SETUP.md)
+

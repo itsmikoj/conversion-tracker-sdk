@@ -6,9 +6,9 @@ import { MetaEventMapper } from './MetaEventMapper';
 import { MetaAPIClient } from './MetaAPIClient';
 
 export interface MetaProviderOptions extends ProviderOptions {
-  pixelId: string;
   appId: string;
   clientToken: string;
+  pixelId?: string;  // Optional: only needed for Conversions API or web pixels
   accessToken?: string;
   testEventCode?: string;
   enableAutoLogging?: boolean;
@@ -25,14 +25,17 @@ export class MetaProvider extends BaseProvider {
     super('Meta', options, logger);
     this.mapper = new MetaEventMapper();
     
-    // Initialize Conversions API client if credentials provided
-    if (options.accessToken && options.enableConversionsAPI !== false) {
+    // Initialize Conversions API client only if pixelId and accessToken are provided
+    if (options.pixelId && options.accessToken && options.enableConversionsAPI !== false) {
       this.apiClient = new MetaAPIClient(
         options.pixelId,
         options.accessToken,
         options.testEventCode,
         logger
       );
+      logger.info('Meta Conversions API client initialized');
+    } else {
+      logger.info('Meta Conversions API not configured (using App Events only)');
     }
   }
 
