@@ -2,7 +2,24 @@ import Constants from 'expo-constants';
 
 export function getMetaConfigFromExpo() {
   const expoConfig = Constants.expoConfig;
-  
+
+  // First try to find our plugin
+  const ourPlugin = expoConfig?.plugins?.find((plugin: any) => {
+    if (Array.isArray(plugin)) {
+      return plugin[0] === '@itsmikoj/conversation-tracker-sdk';
+    }
+    return false;
+  });
+
+  if (ourPlugin && Array.isArray(ourPlugin)) {
+    const config = ourPlugin[1];
+    return {
+      appId: config.appID,
+      clientToken: config.clientToken,
+    };
+  }
+
+  // Fallback to direct Facebook plugin
   const fbPlugin = expoConfig?.plugins?.find((plugin: any) => {
     if (Array.isArray(plugin)) {
       return plugin[0] === 'react-native-fbsdk-next';
