@@ -74,6 +74,7 @@
     "lib",
     "src",
     "plugin",
+    "app.plugin.js",
     "README.md",
     "LICENSE"
   ]
