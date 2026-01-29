@@ -1,6 +1,6 @@
 import { AppEventsLogger, Settings } from 'react-native-fbsdk-next';
 import { BaseProvider, ProviderOptions } from '../base/BaseProvider';
-import { Event, EventType } from '../../models/Event';
+import { Event } from '../../models/Event';
 import { Logger } from '../../utils/Logger';
 import { MetaEventMapper } from './MetaEventMapper';
 import { MetaAPIClient } from './MetaAPIClient';
@@ -8,7 +8,7 @@ import { MetaAPIClient } from './MetaAPIClient';
 export interface MetaProviderOptions extends ProviderOptions {
   appId: string;
   clientToken: string;
-  pixelId?: string;  // Optional: only needed for Conversions API or web pixels
+  pixelId?: string;
   accessToken?: string;
   testEventCode?: string;
   enableAutoLogging?: boolean;
@@ -24,8 +24,7 @@ export class MetaProvider extends BaseProvider {
   constructor(options: MetaProviderOptions, logger: Logger) {
     super('Meta', options, logger);
     this.mapper = new MetaEventMapper();
-    
-    // Initialize Conversions API client only if pixelId and accessToken are provided
+
     if (options.pixelId && options.accessToken && options.enableConversionsAPI !== false) {
       this.apiClient = new MetaAPIClient(
         options.pixelId,
@@ -48,19 +47,17 @@ export class MetaProvider extends BaseProvider {
     try {
       const options = this.options as MetaProviderOptions;
 
-      // Configure Facebook SDK
       Settings.setAppID(options.appId);
       Settings.setClientToken(options.clientToken);
-      
+
       if (options.enableAutoLogging !== false) {
         Settings.setAutoLogAppEventsEnabled(true);
       }
-      
+
       if (options.enableAdvertiserTracking !== false) {
         Settings.setAdvertiserTrackingEnabled(true);
       }
 
-      // Initialize SDK
       Settings.initializeSDK();
 
       this.initialized = true;
@@ -81,13 +78,10 @@ export class MetaProvider extends BaseProvider {
     try {
       const { eventName, parameters } = this.mapper.mapEvent(event);
 
-      // Send via SDK (client-side)
       AppEventsLogger.logEvent(eventName, parameters);
 
-      // Send via Conversions API (server-side) if available
       if (this.apiClient) {
         await this.apiClient.sendEvent(event).catch(error => {
-          // Don't fail the whole operation if CAPI fails
           this.logger.warn('Conversions API failed, event sent via SDK only', error);
         });
       }
@@ -107,21 +101,17 @@ export class MetaProvider extends BaseProvider {
     if (events.length === 0) return;
 
     try {
-      // Send each event via SDK
       for (const event of events) {
         try {
           const { eventName, parameters } = this.mapper.mapEvent(event);
           AppEventsLogger.logEvent(eventName, parameters);
         } catch (error) {
           this.logger.error(`Failed to send event in batch: ${event.type}`, error);
-          // Continue with other events
         }
       }
 
-      // Flush SDK events
       AppEventsLogger.flush();
 
-      // Send batch via Conversions API if available
       if (this.apiClient) {
         await this.apiClient.sendBatch(events).catch(error => {
           this.logger.warn('Conversions API batch failed, events sent via SDK only', error);
@@ -137,7 +127,7 @@ export class MetaProvider extends BaseProvider {
 
   async setUserId(userId: string): Promise<void> {
     try {
-      Settings.setUserID(userId);
+      AppEventsLogger.setUserID(userId);
       this.logger.debug('Meta userId set', { userId });
     } catch (error) {
       this.handleError(error as Error, 'setUserId');
@@ -153,10 +143,11 @@ export class MetaProvider extends BaseProvider {
     }
   }
 
-  /**
-   * Log purchase event (convenience method)
-   */
-  async logPurchase(value: number, currency: string, parameters?: Record<string, any>): Promise<void> {
+  async logPurchase(
+    value: number,
+    currency: string,
+    parameters?: Record<string, any>
+  ): Promise<void> {
     if (!this.initialized) {
       throw new Error('Meta Provider not initialized');
     }
@@ -170,9 +161,6 @@ export class MetaProvider extends BaseProvider {
     }
   }
 
-  /**
-   * Flush pending events
-   */
   async flush(): Promise<void> {
     try {
       AppEventsLogger.flush();
@@ -182,27 +170,21 @@ export class MetaProvider extends BaseProvider {
     }
   }
 
-  /**
-   * Update user consent for data processing
-   */
   setDataProcessingOptions(options: string[], country?: number, state?: number): void {
     try {
-      Settings.setDataProcessingOptions(options, country, state);
+      Settings.setDataProcessingOptions(options, country!, state!);
       this.logger.info('Meta data processing options updated', { options, country, state });
     } catch (error) {
       this.handleError(error as Error, 'setDataProcessingOptions');
     }
   }
 
-  /**
-   * Enable/disable auto-init
-   */
-  setAutoInitEnabled(enabled: boolean): void {
+  setAutoLogAppEventsEnabled(enabled: boolean): void {
     try {
-      Settings.setAutoInitEnabled(enabled);
-      this.logger.info(`Meta auto-init ${enabled ? 'enabled' : 'disabled'}`);
+      Settings.setAutoLogAppEventsEnabled(enabled);
+      this.logger.info(`Meta auto-logging ${enabled ? 'enabled' : 'disabled'}`);
     } catch (error) {
-      this.handleError(error as Error, 'setAutoInitEnabled');
+      this.handleError(error as Error, 'setAutoLogAppEventsEnabled');
     }
   }
 }

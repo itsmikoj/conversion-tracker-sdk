@@ -3,9 +3,7 @@
 ## Instalación
 
 ```bash
-npm install @its
-
-mikoj/conversation-tracker-sdk
+npm install @itsmikoj/conversation-tracker-sdk
 ```
 
 ---

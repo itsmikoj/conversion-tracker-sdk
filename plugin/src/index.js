@@ -1,11 +1,6 @@
 const { withPlugins, createRunOncePlugin } = require('@expo/config-plugins');
 
-/**
- * Config plugin para Conversion Tracker SDK
- * Configura automáticamente react-native-fbsdk-next y expo-tracking-transparency
- */
 const withConversionTracker = (config, props = {}) => {
-  // Validar props requeridas
   if (!props.appID) {
     throw new Error('[@itsmikoj/conversion-tracker-sdk] appID is required in plugin config');
   }
@@ -13,7 +8,6 @@ const withConversionTracker = (config, props = {}) => {
     throw new Error('[@itsmikoj/conversion-tracker-sdk] clientToken is required in plugin config');
   }
 
-  // Configurar Facebook SDK automáticamente
   const facebookConfig = {
     appID: props.appID,
     clientToken: props.clientToken,
@@ -26,12 +20,9 @@ const withConversionTracker = (config, props = {}) => {
       'This identifier will be used to deliver personalized ads to you.',
   };
 
-  // Aplicar plugins necesarios
   return withPlugins(config, [
-    // Plugin de Facebook SDK
     [require('react-native-fbsdk-next/plugin'), facebookConfig],
     
-    // Plugin de Tracking Transparency
     require('expo-tracking-transparency/plugin'),
   ]);
 };
