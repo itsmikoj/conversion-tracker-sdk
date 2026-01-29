@@ -24,7 +24,7 @@ const withConversionTracker = (config, props = {}) => {
   return withPlugins(config, [
     ['react-native-fbsdk-next', facebookConfig],
 
-    require('expo-tracking-transparency/plugin'),
+    ['expo-tracking-transparency'],
   ]);
 };
 
