@@ -33,7 +33,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/itsmikoj/conversstion-tracker-sdk.git"
+    "url": "https://github.com/itsmikoj/conversation-tracker-sdk.git"
   },
   "peerDependencies": {
     "expo": ">=53.0.0",
