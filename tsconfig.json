@@ -5,7 +5,7 @@
     "lib": ["ES2020"],
     "declaration": true,
     "declarationMap": true,
-    "outDir": "./dist",
+    "outDir": "./lib",
     "rootDir": "./src",
     "removeComments": true,
     "strict": true,
