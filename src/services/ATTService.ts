@@ -13,9 +13,6 @@ export class ATTService {
     this.logger = logger;
   }
 
-  /**
-   * Initialize and check current ATT status
-   */
   async initialize(): Promise<void> {
     if (Platform.OS !== 'ios') {
       this.status = 'unavailable';
@@ -27,7 +24,6 @@ export class ATTService {
       this.status = this.mapStatus(status);
       this.logger.info(`ATT Status: ${this.status}`);
 
-      // Get advertising ID if authorized
       if (this.status === 'authorized') {
         await this.loadAdvertisingId();
       }
@@ -37,9 +33,6 @@ export class ATTService {
     }
   }
 
-  /**
-   * Request tracking permission
-   */
   async requestPermission(): Promise<ATTStatus> {
     if (Platform.OS !== 'ios') {
       this.status = 'unavailable';
@@ -52,7 +45,6 @@ export class ATTService {
       
       this.logger.info(`ATT Permission requested: ${this.status}`);
 
-      // Get advertising ID if authorized
       if (this.status === 'authorized') {
         await this.loadAdvertisingId();
       }
@@ -65,30 +57,18 @@ export class ATTService {
     }
   }
 
-  /**
-   * Check if tracking is authorized
-   */
   isAuthorized(): boolean {
     return this.status === 'authorized';
   }
 
-  /**
-   * Get current status
-   */
   getStatus(): ATTStatus {
     return this.status;
   }
 
-  /**
-   * Get advertising ID (IDFA)
-   */
   getAdvertisingId(): string | undefined {
     return this.advertisingId;
   }
 
-  /**
-   * Check if permission can be requested
-   */
   canRequestPermission(): boolean {
     return Platform.OS === 'ios' && this.status === 'not-determined';
   }
@@ -96,7 +76,7 @@ export class ATTService {
   private async loadAdvertisingId(): Promise<void> {
     try {
       const id = await TrackingTransparency.getAdvertisingId();
-      this.advertisingId = id;
+      this.advertisingId = id!;
       this.logger.debug(`Advertising ID loaded: ${id ? 'available' : 'unavailable'}`);
     } catch (error) {
       this.logger.warn('Failed to load advertising ID', error);
@@ -118,9 +98,6 @@ export class ATTService {
     }
   }
 
-  /**
-   * Get user-friendly status message
-   */
   getStatusMessage(): string {
     switch (this.status) {
       case 'authorized':

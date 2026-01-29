@@ -33,9 +33,6 @@ export class BatchProcessor {
     this.logger = logger;
   }
 
-  /**
-   * Start batch processing
-   */
   start(): void {
     if (this.timer) {
       this.logger.warn('BatchProcessor already running');
@@ -51,13 +48,9 @@ export class BatchProcessor {
       this.processBatch();
     }, this.config.batchInterval);
 
-    // Process immediately on start
     this.processBatch();
   }
 
-  /**
-   * Stop batch processing
-   */
   stop(): void {
     if (this.timer) {
       clearInterval(this.timer);
@@ -66,25 +59,18 @@ export class BatchProcessor {
     }
   }
 
-  /**
-   * Flush all events immediately
-   */
   async flush(): Promise<void> {
     this.logger.info('Flushing all events');
     
     while (!this.queue.isEmpty()) {
       await this.processBatch();
       
-      // Small delay to prevent overwhelming the system
       await this.sleep(100);
     }
     
     this.logger.info('Flush completed');
   }
 
-  /**
-   * Get processing statistics
-   */
   getStats(): { successCount: number; failureCount: number; queueSize: number } {
     return {
       successCount: this.successCount,
@@ -93,17 +79,11 @@ export class BatchProcessor {
     };
   }
 
-  /**
-   * Reset statistics
-   */
   resetStats(): void {
     this.successCount = 0;
     this.failureCount = 0;
   }
 
-  /**
-   * Process a batch of events
-   */
   private async processBatch(): Promise<void> {
     if (this.processing || this.queue.isEmpty()) {
       return;
@@ -127,18 +107,15 @@ export class BatchProcessor {
 
       this.logger.debug(`Processing batch of ${events.length} events`);
 
-      // Group events by provider
       const eventsByProvider = this.groupEventsByProvider(events);
 
-      // Send to all providers in parallel
       const results = await Promise.allSettled(
         Array.from(eventsByProvider.entries()).map(([providerName, providerEvents]) => 
           this.sendToProvider(providerName, providerEvents)
         )
       );
 
-      // Track results
-      results.forEach((result, index) => {
+      results.forEach((result, _index) => {
         if (result.status === 'fulfilled') {
           this.successCount += result.value;
         } else {
@@ -156,15 +133,11 @@ export class BatchProcessor {
     }
   }
 
-  /**
-   * Send events to a specific provider
-   */
   private async sendToProvider(providerName: string, events: Event[]): Promise<number> {
     const provider = this.providers.get(providerName);
     
     if (!provider || !provider.isEnabled()) {
       this.logger.warn(`Provider ${providerName} not available or disabled`);
-      // Re-queue events for retry
       for (const event of events) {
         await this.queue.requeue(event);
       }
@@ -178,7 +151,6 @@ export class BatchProcessor {
     } catch (error) {
       this.logger.error(`Failed to send batch to ${providerName}`, error);
       
-      // Re-queue failed events
       for (const event of events) {
         await this.queue.requeue(event);
       }
@@ -187,13 +159,9 @@ export class BatchProcessor {
     }
   }
 
-  /**
-   * Group events by provider
-   */
   private groupEventsByProvider(events: Event[]): Map<string, Event[]> {
     const grouped = new Map<string, Event[]>();
 
-    // Each event should be sent to all enabled providers
     for (const [name, provider] of this.providers) {
       if (provider.isEnabled()) {
         grouped.set(name, [...events]);
@@ -203,9 +171,6 @@ export class BatchProcessor {
     return grouped;
   }
 
-  /**
-   * Get adaptive batch size based on success rate
-   */
   private getAdaptiveBatchSize(): number {
     if (!this.config.enableAdaptiveBatching) {
       return this.config.batchSize;
@@ -219,28 +184,19 @@ export class BatchProcessor {
 
     const successRate = this.successCount / totalEvents;
 
-    // Adjust batch size based on success rate
     if (successRate > 0.95) {
-      // High success rate: increase batch size
       return Math.min(this.config.batchSize * 1.5, 50);
     } else if (successRate < 0.7) {
-      // Low success rate: decrease batch size
       return Math.max(Math.floor(this.config.batchSize / 2), 1);
     }
 
     return this.config.batchSize;
   }
 
-  /**
-   * Sleep utility
-   */
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  /**
-   * Check if processor is running
-   */
   isRunning(): boolean {
     return this.timer !== undefined;
   }

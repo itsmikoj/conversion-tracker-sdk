@@ -21,64 +21,34 @@ export abstract class BaseProvider {
     this.logger = logger;
   }
 
-  /**
-   * Initialize the provider
-   */
   abstract initialize(): Promise<void>;
 
-  /**
-   * Send a single event
-   */
   abstract sendEvent(event: Event): Promise<void>;
 
-  /**
-   * Send multiple events in a batch
-   */
   abstract sendBatch(events: Event[]): Promise<void>;
 
-  /**
-   * Set user ID for tracking
-   */
   abstract setUserId(userId: string): Promise<void>;
 
-  /**
-   * Set user properties
-   */
   abstract setUserProperties(properties: Record<string, any>): Promise<void>;
-  
-  /**
-   * Check if provider is enabled
-   */
+
   isEnabled(): boolean {
     return this.enabled;
   }
 
-  /**
-   * Enable the provider
-   */
   enable(): void {
     this.enabled = true;
     this.logger.info(`Provider ${this.name} enabled`);
   }
 
-  /**
-   * Disable the provider
-   */
   disable(): void {
     this.enabled = false;
     this.logger.info(`Provider ${this.name} disabled`);
   }
 
-  /**
-   * Get provider name
-   */
   getName(): string {
     return this.name;
   }
 
-  /**
-   * Execute operation with retry logic
-   */
   protected async executeWithRetry<T>(
     operation: () => Promise<T>,
     maxRetries: number = 3,
@@ -105,9 +75,6 @@ export abstract class BaseProvider {
     throw lastError;
   }
 
-  /**
-   * Execute operation with timeout
-   */
   protected async executeWithTimeout<T>(
     operation: () => Promise<T>,
     timeout: number
@@ -120,16 +87,10 @@ export abstract class BaseProvider {
     ]);
   }
 
-  /**
-   * Sleep utility
-   */
   protected sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  /**
-   * Validate event structure
-   */
   protected validateEvent(event: Event): void {
     if (!event.type) {
       throw new Error('Event type is required');
@@ -142,9 +103,6 @@ export abstract class BaseProvider {
     }
   }
 
-  /**
-   * Handle provider error
-   */
   protected handleError(error: Error, context?: string): void {
     const message = context 
       ? `${this.name} error in ${context}` 

@@ -17,33 +17,6 @@ export interface UseConversionTrackerReturn {
   getStats: () => any;
 }
 
-/**
- * React hook for using ConversionTracker
- * 
- * @example
- * ```tsx
- * function App() {
- *   const { track, trackPurchase, isInitialized } = useConversionTracker({
- *     providers: {
- *       meta: {
- *         enabled: true,
- *         pixelId: 'YOUR_PIXEL_ID',
- *         appId: 'YOUR_APP_ID',
- *         clientToken: 'YOUR_CLIENT_TOKEN',
- *       },
- *     },
- *   });
- * 
- *   useEffect(() => {
- *     if (isInitialized) {
- *       track(EventType.VIEW_CONTENT, { contentId: 'home' });
- *     }
- *   }, [isInitialized]);
- * 
- *   return <YourApp />;
- * }
- * ```
- */
 export function useConversionTracker(config: TrackerConfig): UseConversionTrackerReturn {
   const [tracker, setTracker] = useState<ConversionTracker | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -73,7 +46,7 @@ export function useConversionTracker(config: TrackerConfig): UseConversionTracke
         tracker.dispose();
       }
     };
-  }, []); // Empty deps - only initialize once
+  }, []);
 
   const track = useCallback(
     async (eventType: EventType | string, parameters?: Record<string, any>, priority?: EventPriority) => {

@@ -2,10 +2,6 @@ import { Event } from '../../models/Event';
 import { Logger } from '../../utils/Logger';
 import { Crypto } from '../../utils/Crypto';
 
-/**
- * Meta Conversions API Client
- * Sends events server-side for improved data quality and iOS 14+ tracking
- */
 export class MetaAPIClient {
   private pixelId: string;
   private accessToken: string;
@@ -25,18 +21,12 @@ export class MetaAPIClient {
     this.logger = logger;
   }
 
-  /**
-   * Send single event via Conversions API
-   */
   async sendEvent(event: Event): Promise<void> {
     const data = this.transformEventToConversionsAPI(event);
     
     await this.sendRequest([data]);
   }
 
-  /**
-   * Send batch of events via Conversions API
-   */
   async sendBatch(events: Event[]): Promise<void> {
     if (events.length === 0) return;
 
@@ -45,9 +35,6 @@ export class MetaAPIClient {
     await this.sendRequest(data);
   }
 
-  /**
-   * Transform internal event to Conversions API format
-   */
   private transformEventToConversionsAPI(event: Event): any {
     const userData = this.buildUserData(event);
     const customData = this.buildCustomData(event);
@@ -67,21 +54,16 @@ export class MetaAPIClient {
     };
   }
 
-  /**
-   * Build user data object with hashed PII
-   */
   private buildUserData(event: Event): any {
     const userData: any = {
-      client_ip_address: undefined, // Should be set on server-side
-      client_user_agent: undefined, // Should be set on server-side
+      client_ip_address: undefined,
+      client_user_agent: undefined,
     };
 
-    // Add hashed user identifiers if available
     if (event.metadata.userId) {
       userData.external_id = [Crypto.sha256(event.metadata.userId)];
     }
 
-    // Add device identifiers
     if (event.metadata.deviceId) {
       if (event.metadata.platform === 'ios') {
         userData.idfa = event.metadata.deviceId;
@@ -93,9 +75,6 @@ export class MetaAPIClient {
     return userData;
   }
 
-  /**
-   * Build custom data object
-   */
   private buildCustomData(event: Event): any {
     const customData: any = {};
 
@@ -123,9 +102,6 @@ export class MetaAPIClient {
     return customData;
   }
 
-  /**
-   * Send request to Conversions API
-   */
   private async sendRequest(data: any[]): Promise<void> {
     const url = `${this.baseUrl}/${this.pixelId}/events`;
     
@@ -156,7 +132,6 @@ export class MetaAPIClient {
       
       this.logger.debug('Meta Conversions API response', result);
 
-      // Check for events with errors
       if (result.events_received !== data.length) {
         this.logger.warn('Not all events were received by Meta Conversions API', result);
       }

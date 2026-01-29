@@ -15,26 +15,6 @@ export interface UseEventTrackerReturn {
   trackCustomEvent: (eventName: string, parameters?: Record<string, any>) => Promise<void>;
 }
 
-/**
- * Hook for common tracking events
- * 
- * @example
- * ```tsx
- * function ProductScreen() {
- *   const { trackAddToCart, trackViewContent } = useEventTracker();
- * 
- *   useEffect(() => {
- *     trackViewContent('product-123', 'product');
- *   }, []);
- * 
- *   const handleAddToCart = () => {
- *     trackAddToCart('product-123', 29.99, 'USD');
- *   };
- * 
- *   return <Button onPress={handleAddToCart}>Add to Cart</Button>;
- * }
- * ```
- */
 export function useEventTracker(): UseEventTrackerReturn {
   const getTracker = (): ConversionTracker => {
     try {

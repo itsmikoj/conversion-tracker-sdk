@@ -52,7 +52,6 @@ export class Logger {
     const timestamp = this.enableTimestamp ? new Date().toISOString() : '';
     const formattedMessage = `${this.prefix} ${timestamp} [${level.toUpperCase()}] ${message}`;
 
-    // Console output
     switch (level) {
       case 'error':
         console.error(formattedMessage, data || '');
@@ -68,7 +67,6 @@ export class Logger {
         break;
     }
 
-    // Custom handlers
     this.handlers.forEach(handler => {
       try {
         handler(level, message, data);

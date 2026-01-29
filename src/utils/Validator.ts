@@ -1,33 +1,22 @@
 import { Event, EventType } from '../models/Event';
 
 export class Validator {
-  /**
-   * Validate email format
-   */
+
   static isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  /**
-   * Validate phone number (basic validation)
-   */
   static isValidPhone(phone: string): boolean {
     const phoneRegex = /^\+?[\d\s\-()]+$/;
     return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
   }
 
-  /**
-   * Validate currency code (ISO 4217)
-   */
   static isValidCurrency(currency: string): boolean {
     const currencyRegex = /^[A-Z]{3}$/;
     return currencyRegex.test(currency);
   }
 
-  /**
-   * Validate event structure
-   */
   static validateEvent(event: Event): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
@@ -57,7 +46,6 @@ export class Validator {
       }
     }
 
-    // Validate commerce events
     if (event.type === EventType.PURCHASE || event.type === EventType.ADD_TO_CART) {
       if (!event.parameters.value || event.parameters.value <= 0) {
         errors.push('Value must be greater than 0 for commerce events');
@@ -75,9 +63,6 @@ export class Validator {
     };
   }
 
-  /**
-   * Validate configuration
-   */
   static validateConfig(config: any): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
@@ -93,18 +78,13 @@ export class Validator {
       errors.push('Max queue size must be at least 1');
     }
 
-    // Validate Meta provider config
     if (config.providers.meta?.enabled) {
-      // Only appId and clientToken are required
-      // pixelId is optional (only needed for web pixels or advanced tracking)
       if (!config.providers.meta.appId) {
         errors.push('Meta app ID is required');
       }
       if (!config.providers.meta.clientToken) {
         errors.push('Meta client token is required');
       }
-      // pixelId is optional
-      // accessToken is optional (only for Conversions API)
     }
 
     return {
@@ -113,16 +93,10 @@ export class Validator {
     };
   }
 
-  /**
-   * Sanitize user input
-   */
   static sanitizeString(input: string): string {
     return input.trim().replace(/[<>]/g, '');
   }
 
-  /**
-   * Validate and sanitize parameters
-   */
   static sanitizeParameters(parameters: Record<string, any>): Record<string, any> {
     const sanitized: Record<string, any> = {};
 

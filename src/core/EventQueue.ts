@@ -17,16 +17,10 @@ export class EventQueue {
     this.logger = logger;
   }
 
-  /**
-   * Initialize and load persisted events
-   */
   async initialize(): Promise<void> {
     await this.loadPersistedEvents();
   }
 
-  /**
-   * Add event to queue
-   */
   async enqueue(event: Event): Promise<void> {
     if (this.queue.length >= this.maxSize) {
       this.logger.warn('Queue is full, removing oldest low-priority event');
@@ -40,34 +34,22 @@ export class EventQueue {
     this.logger.debug(`Event enqueued: ${event.type}`, event);
   }
 
-  /**
-   * Add multiple events to queue
-   */
   async enqueueBatch(events: Event[]): Promise<void> {
     for (const event of events) {
       await this.enqueue(event);
     }
   }
 
-  /**
-   * Remove and return events from queue
-   */
   dequeue(count: number = 1): Event[] {
     const events = this.queue.splice(0, count);
     this.persist();
     return events;
   }
 
-  /**
-   * View events without removing them
-   */
   peek(count: number = 1): Event[] {
     return this.queue.slice(0, count);
   }
 
-  /**
-   * Re-add failed event to queue with retry logic
-   */
   async requeue(event: Event): Promise<void> {
     event.retryCount++;
     
@@ -77,59 +59,37 @@ export class EventQueue {
       return;
     }
 
-    // Add exponential backoff by updating timestamp
     const backoffDelay = Math.pow(2, event.retryCount) * 1000;
     event.metadata.timestamp = Date.now() + backoffDelay;
 
     await this.enqueue(event);
   }
 
-  /**
-   * Get queue size
-   */
   size(): number {
     return this.queue.length;
   }
 
-  /**
-   * Check if queue is empty
-   */
   isEmpty(): boolean {
     return this.queue.length === 0;
   }
 
-  /**
-   * Clear all events from queue
-   */
   async clear(): Promise<void> {
     this.queue = [];
     await this.persist();
   }
 
-  /**
-   * Get all events (copy)
-   */
   getEvents(): Event[] {
     return [...this.queue];
   }
 
-  /**
-   * Get events by type
-   */
   getEventsByType(type: string): Event[] {
     return this.queue.filter(e => e.type === type);
   }
 
-  /**
-   * Get events by priority
-   */
   getEventsByPriority(priority: EventPriority): Event[] {
     return this.queue.filter(e => e.priority === priority);
   }
 
-  /**
-   * Remove specific event by ID
-   */
   async removeEvent(eventId: string): Promise<boolean> {
     const index = this.queue.findIndex(e => e.id === eventId);
     if (index > -1) {
@@ -140,9 +100,6 @@ export class EventQueue {
     return false;
   }
 
-  /**
-   * Get dead letter queue events
-   */
   async getDeadLetterQueue(): Promise<Event[]> {
     try {
       const data = await this.storage.getItem(this.dlqKey);
@@ -153,9 +110,6 @@ export class EventQueue {
     }
   }
 
-  /**
-   * Clear dead letter queue
-   */
   async clearDeadLetterQueue(): Promise<void> {
     try {
       await this.storage.removeItem(this.dlqKey);
@@ -165,23 +119,15 @@ export class EventQueue {
     }
   }
 
-  /**
-   * Sort queue by priority and timestamp
-   */
   private sortByPriority(): void {
     this.queue.sort((a, b) => {
-      // First by priority (higher first)
       if (b.priority !== a.priority) {
         return b.priority - a.priority;
       }
-      // Then by timestamp (older first)
       return a.createdAt - b.createdAt;
     });
   }
 
-  /**
-   * Remove lowest priority event to make space
-   */
   private removeLowestPriorityEvent(): void {
     let lowestPriorityIndex = 0;
     let lowestPriority = this.queue[0]?.priority ?? EventPriority.HIGH;
@@ -197,9 +143,6 @@ export class EventQueue {
     this.logger.warn(`Removed low-priority event due to queue full: ${removed[0]?.type}`);
   }
 
-  /**
-   * Persist queue to storage
-   */
   private async persist(): Promise<void> {
     try {
       await this.storage.setItem(this.persistenceKey, JSON.stringify(this.queue));
@@ -208,9 +151,6 @@ export class EventQueue {
     }
   }
 
-  /**
-   * Load persisted events from storage
-   */
   private async loadPersistedEvents(): Promise<void> {
     try {
       const data = await this.storage.getItem(this.persistenceKey);
@@ -225,9 +165,6 @@ export class EventQueue {
     }
   }
 
-  /**
-   * Move failed event to dead letter queue
-   */
   private async moveToDeadLetterQueue(event: Event): Promise<void> {
     try {
       const existingData = await this.storage.getItem(this.dlqKey);
@@ -238,7 +175,6 @@ export class EventQueue {
         sentAt: Date.now(),
       });
       
-      // Keep only last 100 failed events
       if (dlq.length > 100) {
         dlq.splice(0, dlq.length - 100);
       }

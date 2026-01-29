@@ -10,7 +10,7 @@ export interface TrackerConfig {
     meta?: ProviderConfig & {
       appId: string;
       clientToken: string;
-      pixelId?: string;  // Optional: only needed for web pixels or Conversions API
+      pixelId?: string;
       accessToken?: string;
       testEventCode?: string;
       enableAutoLogging?: boolean;

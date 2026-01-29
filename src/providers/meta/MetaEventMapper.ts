@@ -5,9 +5,6 @@ export interface MetaMappedEvent {
   parameters: Record<string, any>;
 }
 
-/**
- * Maps internal events to Meta/Facebook event format
- */
 export class MetaEventMapper {
   private eventNameMap: Record<string, string> = {
     [EventType.ADD_TO_CART]: 'fb_mobile_add_to_cart',
@@ -35,9 +32,6 @@ export class MetaEventMapper {
     subscriptionType: 'fb_subscription_type',
   };
 
-  /**
-   * Map internal event to Meta format
-   */
   mapEvent(event: Event): MetaMappedEvent {
     const eventName = this.mapEventName(event.type);
     const parameters = this.mapParameters(event.parameters);
@@ -48,16 +42,10 @@ export class MetaEventMapper {
     };
   }
 
-  /**
-   * Map event type to Meta event name
-   */
   private mapEventName(eventType: string): string {
     return this.eventNameMap[eventType] || eventType;
   }
 
-  /**
-   * Map parameters to Meta format
-   */
   private mapParameters(parameters: Record<string, any>): Record<string, any> {
     const mapped: Record<string, any> = {};
 
@@ -65,7 +53,6 @@ export class MetaEventMapper {
       const mappedKey = this.parameterMap[key] || key;
       
       if (key === 'contents' && Array.isArray(value)) {
-        // Transform contents array
         mapped[mappedKey] = value.map(item => ({
           id: item.id,
           quantity: item.quantity,
@@ -81,18 +68,11 @@ export class MetaEventMapper {
     return mapped;
   }
 
-  /**
-   * Check if event should be sent to Meta
-   */
-  shouldSendEvent(event: Event): boolean {
-    // Meta typically tracks all events, but you can add logic here
-    // to filter certain events if needed
+
+  shouldSendEvent(_event: Event): boolean {
     return true;
   }
 
-  /**
-   * Get Meta standard event name
-   */
   getStandardEventName(eventType: EventType): string | undefined {
     return this.eventNameMap[eventType];
   }
