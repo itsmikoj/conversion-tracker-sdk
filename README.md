@@ -1,238 +1,101 @@
 # Conversion Tracker SDK
 
-Enterprise-grade conversion tracking SDK for React Native with Meta Ads, Google Analytics, and Apple Search Ads integration.
+SDK profesional para tracking de conversiones en React Native con Meta Ads.
 
-## Features
-
-✅ **Multi-Provider Support**: Meta Ads, Google Analytics, Apple Search Ads  
-✅ **Offline Queue**: Events are queued and sent when connection is restored  
-✅ **Batch Processing**: Efficient event batching with adaptive sizing  
-✅ **Priority System**: Critical events are sent first  
-✅ **iOS 14+ Support**: Full ATT (App Tracking Transparency) integration  
-✅ **Conversions API**: Server-side tracking backup for Meta  
-✅ **TypeScript**: Fully typed for better DX  
-✅ **React Hooks**: Easy integration with React Native apps  
-✅ **Privacy Compliant**: GDPR, CCPA ready with data hashing  
-✅ **Retries & DLQ**: Automatic retries with Dead Letter Queue  
-
-## Installation
-
-### From Private GitHub Repository
+## 🚀 Instalación Rápida
 
 ```bash
-# Instalación simple - instala automáticamente todas las dependencias
 npm install @itsmikoj/conversation-tracker-sdk
-
-# o
-yarn add @itsmikoj/conversation-tracker-sdk
 ```
 
-**Dependencias instaladas automáticamente:**
-- ✅ `react-native-fbsdk-next`
-- ✅ `expo-tracking-transparency`
-- ✅ `@react-native-async-storage/async-storage`
-- ✅ `expo-constants`
-
-**No necesitas instalar nada más manualmente.**
-
-### Authentication
-
-Create `.npmrc` in your project root:
-
-```
-@your-org:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
-```
-
-### Peer Dependencies
-
-```bash
-npm install react-native-fbsdk-next expo-tracking-transparency @react-native-async-storage/async-storage @react-native-community/netinfo
-```
-
-## Quick Start
-
-### 1. Configure app.json (Expo)
+## ⚙️ Configuración (app.json)
 
 ```json
 {
   "expo": {
     "plugins": [
       [
-        "react-native-fbsdk-next",
+        "@itsmikoj/conversation-tracker-sdk",
         {
-          "appID": "YOUR_FACEBOOK_APP_ID",
-          "clientToken": "YOUR_CLIENT_TOKEN",
-          "displayName": "Your App Name",
-          "advertiserIDCollectionEnabled": true,
-          "autoLogAppEventsEnabled": false
+          "appID": "TU_APP_ID",
+          "clientToken": "TU_CLIENT_TOKEN",
+          "displayName": "Tu App"
         }
-      ],
-      "expo-tracking-transparency"
-    ],
-    "ios": {
-      "infoPlist": {
-        "NSUserTrackingUsageDescription": "We use tracking to provide personalized ads and improve your experience"
-      }
-    }
+      ]
+    ]
   }
 }
 ```
 
-### 2. Initialize in App.tsx
+## 💻 Uso Básico
 
 ```typescript
-// ✅ Importación correcta (sin /src)
-import { useConversionTracker, getMetaConfigFromExpo } from '@itsmikoj/conversation-tracker-sdk';
-import { EventType } from '@itsmikoj/conversation-tracker-sdk';
+import { useConversionTracker, getMetaConfigFromExpo, EventType } from '@itsmikoj/conversation-tracker-sdk';
 
-function App() {
-  const { isInitialized, track, trackPurchase, requestTracking } = useConversionTracker({
+export default function App() {
+  const { isInitialized, track, trackPurchase } = useConversionTracker({
     providers: {
       meta: {
         enabled: true,
-        ...getMetaConfigFromExpo(),  // ✨ Auto-carga appId y clientToken
-        
-        // OPCIONAL: Solo si usas Conversions API
-        // pixelId: 'YOUR_PIXEL_ID',
-        // accessToken: 'YOUR_ACCESS_TOKEN',
-        // enableConversionsAPI: true,
+        ...getMetaConfigFromExpo(),  // Auto-carga desde app.json
       },
     },
-    debug: __DEV__,
   });
 
-  useEffect(() => {
-    if (isInitialized) {
-      // Request tracking permission on iOS
-      requestTracking();
-      
-      // Track app open
-      track(EventType.VIEW_CONTENT, { contentType: 'app_open' });
-    }
-  }, [isInitialized]);
-
-  return <YourApp />;
-}
-```
-
-### 3. Track Events
-
-```typescript
-// ✅ Importación correcta
-import { useEventTracker } from '@itsmikoj/conversation-tracker-sdk';
-
-function ProductScreen({ productId, price }) {
-  const { trackAddToCart, trackViewContent } = useEventTracker();
-
-  useEffect(() => {
-    trackViewContent(productId, 'product');
-  }, [productId]);
-
+  // Trackear eventos
   const handleAddToCart = () => {
-    trackAddToCart(productId, price, 'USD');
+    track(EventType.ADD_TO_CART, {
+      contentId: 'product-123',
+      value: 29.99,
+      currency: 'USD',
+    });
   };
 
-  return <Button onPress={handleAddToCart}>Add to Cart</Button>;
+  const handlePurchase = () => {
+    trackPurchase('order-456', 99.99, 'USD', [
+      { id: 'product-123', quantity: 1, price: 99.99 }
+    ]);
+  };
 }
 ```
 
-### 4. Track Purchase
+## 📦 Rebuild Nativo
 
-```typescript
-const handleCheckout = async () => {
-  await trackPurchase(
-    orderId,
-    totalAmount,
-    'USD',
-    items.map(item => ({
-      id: item.id,
-      quantity: item.quantity,
-      price: item.price,
-    }))
-  );
-};
+```bash
+npx expo prebuild --clean
+npx expo run:ios
 ```
 
-## Advanced Usage
+## 📖 Métodos Principales
 
-### Custom Middleware
+### `useConversionTracker(config)`
 
-```typescript
-import { ConversionTracker } from '@your-org/conversion-tracker-sdk';
+Hook principal para inicializar el tracker.
 
-const tracker = ConversionTracker.getInstance(config);
+**Retorna:**
+- `isInitialized` - Si el tracker está listo
+- `track(type, params)` - Trackear cualquier evento
+- `trackPurchase(orderId, value, currency, items)` - Trackear compra
+- `trackRegistration(method)` - Trackear registro
+- `setUserId(userId)` - Identificar usuario
+- `setUserProperties(props)` - Propiedades del usuario
+- `requestTracking()` - Pedir permiso ATT (iOS)
+- `flush()` - Forzar envío inmediato
+- `getStats()` - Ver estadísticas
 
-// Add custom middleware
-tracker.addMiddleware(async (event) => {
-  // Enrich event with custom data
-  event.parameters.customField = 'value';
-  return event;
-});
+### `useEventTracker()`
 
-await tracker.initialize();
-```
+Hook con métodos específicos para eventos comunes.
 
-### Manual Initialization
+**Retorna:**
+- `trackAddToCart(itemId, price, currency)`
+- `trackViewContent(contentId, type)`
+- `trackSearch(query)`
+- `trackLogin(method)`
+- `trackSubscribe(type)`
+- `trackCustomEvent(name, params)`
 
-```typescript
-import { ConversionTracker, EventType } from '@your-org/conversion-tracker-sdk';
-
-const tracker = ConversionTracker.getInstance({
-  providers: {
-    meta: {
-      enabled: true,
-      
-      // Required
-      appId: 'YOUR_FB_APP_ID',
-      clientToken: 'YOUR_CLIENT_TOKEN',
-      
-      // Optional
-      pixelId: 'YOUR_PIXEL_ID',           // Only for Conversions API
-      accessToken: 'YOUR_ACCESS_TOKEN',   // Only for Conversions API
-      enableConversionsAPI: false,        // Set true if using CAPI
-    },
-  },
-});
-
-await tracker.initialize();
-
-// Track events
-await tracker.track(EventType.PURCHASE, {
-  value: 99.99,
-  currency: 'USD',
-});
-
-// Set user
-await tracker.setUserId('user-123');
-await tracker.setUserProperties({
-  email: 'user@example.com',
-  firstName: 'John',
-});
-
-// Flush events
-await tracker.flush();
-```
-
-### Monitoring
-
-```typescript
-// Get statistics
-const stats = tracker.getStats();
-console.log(stats);
-// {
-//   successCount: 150,
-//   failureCount: 2,
-//   queueSize: 5,
-//   providers: [{ name: 'Meta', enabled: true }]
-// }
-
-// Access Dead Letter Queue
-const dlq = await tracker.queue.getDeadLetterQueue();
-console.log('Failed events:', dlq);
-```
-
-## Event Types
+## 🎯 Tipos de Eventos
 
 ```typescript
 EventType.ADD_TO_CART
@@ -241,154 +104,124 @@ EventType.INITIATE_CHECKOUT
 EventType.ADD_PAYMENT_INFO
 EventType.COMPLETE_REGISTRATION
 EventType.LOGIN
-EventType.START_TRIAL
-EventType.SUBSCRIBE
 EventType.VIEW_CONTENT
 EventType.SEARCH
-EventType.RATE
-EventType.SHARE
+EventType.START_TRIAL
+EventType.SUBSCRIBE
 ```
 
-## Configuration Options
+## ⚡ Características
+
+- ✅ **Queue Offline**: Eventos se guardan y envían cuando hay conexión
+- ✅ **Reintentos Automáticos**: 3 intentos antes de fallar
+- ✅ **Batch Processing**: Agrupa eventos para optimizar red
+- ✅ **TypeScript**: Tipado completo
+- ✅ **Multi-Provider**: Facebook, Google, Apple (próximamente)
+- ✅ **Conversions API**: Tracking server-side opcional
+- ✅ **Monitoreo**: Stats y Dead Letter Queue
+
+## 🔧 Configuración Avanzada
+
+### Con Conversions API (Opcional)
 
 ```typescript
-interface TrackerConfig {
-  providers: {
-    meta?: MetaProviderOptions;
-    // Add more providers
-  };
-  
-  // Batching
-  batchSize: number;              // Default: 10
-  batchInterval: number;          // Default: 5000ms
-  maxQueueSize: number;           // Default: 100
-  
-  // Network
-  timeout: number;                // Default: 10000ms
-  maxRetries: number;             // Default: 3
-  
-  // Privacy
-  enableATT: boolean;             // Default: true
-  hashUserData: boolean;          // Default: true
-  
-  // Debug
-  debug: boolean;
-  logLevel: 'none' | 'error' | 'warn' | 'info' | 'debug';
-}
-```
-
-## Meta Ads Setup
-
-1. **Facebook Business Manager**: Create app and get credentials
-2. **iOS Configuration**: Add `NSUserTrackingUsageDescription` to Info.plist
-3. **SKAdNetwork**: Add Meta's SKAdNetwork IDs
-4. **Test Events**: Use test event code during development
-
-```typescript
-meta: {
-  enabled: true,
-  pixelId: 'YOUR_PIXEL_ID',
-  appId: 'YOUR_FB_APP_ID',
-  clientToken: 'YOUR_CLIENT_TOKEN',
-  testEventCode: 'TEST12345', // For testing
-}
-```
-
-## Best Practices
-
-1. **Initialize Early**: Initialize tracker as soon as possible
-2. **Request ATT**: Request tracking permission before tracking
-3. **Batch Events**: Let the SDK handle batching automatically
-4. **High Priority**: Use HIGH priority for revenue events
-5. **Flush on Exit**: Call `flush()` before app closes
-6. **Monitor DLQ**: Regularly check dead letter queue for issues
-7. **Test Mode**: Use test event codes in development
-
-## Troubleshooting
-
-### Events not appearing in Meta
-
-1. Check Meta Events Manager
-2. Verify pixel ID and app credentials
-3. Use test event code to see events immediately
-4. Check ATT permission status
-5. Verify network connectivity
-
-### Queue growing too large
-
-1. Check network connection
-2. Verify provider credentials
-3. Check logs for errors
-4. Increase batch size
-5. Reduce batch interval
-
-## License
-
-MIT
-
-## Support
-
-For issues and questions:
-- GitHub Issues: https://github.com/your-org/conversion-tracker-sdk/issues
-- Documentation: https://your-org.github.io/conversion-tracker-sdk
-
----
-
-## 🚀 Configuración Simplificada (Sin Repetir Keys)
-
-### **Opción 1: Auto-Config desde app.json**
-
-```typescript
-import { useConversionTracker, getMetaConfigFromExpo } from '@your-org/conversion-tracker-sdk';
-
-const metaConfig = getMetaConfigFromExpo(); // Lee automáticamente de app.json
-
-const { isInitialized } = useConversionTracker({
-  providers: {
-    meta: {
-      enabled: true,
-      ...metaConfig,  // ✨ Auto-carga appId y clientToken
-    },
-  },
-});
-```
-
-### **Opción 2: Variables de Entorno**
-
-```bash
-# .env
-META_APP_ID=123456789012345
-META_CLIENT_TOKEN=abc123def456
-```
-
-```javascript
-// app.config.js
-export default {
-  expo: {
-    plugins: [
-      ['react-native-fbsdk-next', {
-        appID: process.env.META_APP_ID,
-        clientToken: process.env.META_CLIENT_TOKEN,
-      }]
-    ]
-  }
-};
-```
-
-```typescript
-// App.tsx
-import { META_APP_ID, META_CLIENT_TOKEN } from '@env';
-
 useConversionTracker({
   providers: {
     meta: {
       enabled: true,
-      appId: META_APP_ID,
-      clientToken: META_CLIENT_TOKEN,
+      ...getMetaConfigFromExpo(),
+      pixelId: 'TU_PIXEL_ID',
+      accessToken: 'TU_ACCESS_TOKEN',
+      enableConversionsAPI: true,
     },
   },
 });
 ```
 
-Ver guía completa: [`docs/ENVIRONMENT_SETUP.md`](docs/ENVIRONMENT_SETUP.md)
+### Debug Mode
 
+```typescript
+useConversionTracker({
+  providers: { meta: { enabled: true, ...getMetaConfigFromExpo() } },
+  debug: true,
+  logLevel: 'debug',
+});
+```
+
+### Custom Middleware
+
+```typescript
+const tracker = ConversionTracker.getInstance(config);
+
+tracker.addMiddleware(async (event) => {
+  // Modificar evento antes de enviar
+  event.parameters.customField = 'value';
+  return event;
+});
+```
+
+## 📊 Monitoreo
+
+```typescript
+// Ver estadísticas
+const stats = getStats();
+console.log(stats);
+// { successCount: 150, failureCount: 2, queueSize: 5 }
+
+// Ver eventos fallidos
+const dlq = await tracker.queue.getDeadLetterQueue();
+console.log('Eventos fallidos:', dlq);
+```
+
+## 🔑 Credenciales de Meta
+
+### App ID y Client Token (REQUERIDOS)
+
+1. Ve a https://developers.facebook.com/apps
+2. Crea o selecciona tu app
+3. Settings → Basic
+4. Copia **App ID** y **Client Token**
+
+### Pixel ID y Access Token (OPCIONALES - solo para Conversions API)
+
+1. Ve a https://business.facebook.com/events_manager
+2. Crea un Dataset para tu app
+3. Settings → Conversions API → Generate Access Token
+
+## ⚠️ Troubleshooting
+
+### Eventos no aparecen en Meta
+
+- Espera 24-48 horas (es normal)
+- Verifica en "Activity" no en "Test Events"
+- Asegúrate de haber hecho `npx expo prebuild --clean`
+
+### Error al importar
+
+```typescript
+// ✅ Correcto
+import { useConversionTracker } from '@itsmikoj/conversation-tracker-sdk';
+
+// ❌ Incorrecto
+import { useConversionTracker } from '@itsmikoj/conversation-tracker-sdk/src';
+```
+
+### EBUSY error (Windows)
+
+Cierra VS Code y terminales, luego:
+```bash
+Remove-Item -Recurse -Force node_modules
+npm install
+```
+
+## 📚 Documentación Completa
+
+Ver `/docs/API.md` para referencia completa de todos los métodos y configuraciones.
+
+## 📄 Licencia
+
+MIT
+
+## 🆘 Soporte
+
+Issues: https://github.com/itsmikoj/conversation-tracker-sdk/issues

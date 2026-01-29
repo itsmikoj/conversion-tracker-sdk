@@ -1,10 +1,13 @@
 {
   "name": "@itsmikoj/conversation-tracker-sdk",
-  "version": "1.0.1",
-  "description": "Enterprise-grade conversion tracking SDK for React Native with Meta Ads, Google Analytics, and Apple Search Ads integration",
+  "version": "1.1.0",
+  "description": "Enterprise-grade conversion tracking SDK for React Native with Meta Ads",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "sideEffects": false,
+  "expo": {
+    "plugin": "./plugin/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
@@ -42,7 +45,8 @@
     "react-native-fbsdk-next": "^12.2.0",
     "expo-tracking-transparency": "^6.0.8",
     "@react-native-async-storage/async-storage": "^1.17.0",
-    "expo-constants": "^17.1.1"
+    "expo-constants": "^17.1.1",
+    "@expo/config-plugins": "^9.0.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.0",
@@ -63,9 +67,8 @@
     "typescript": "^5.2.0"
   },
   "files": [
-    "dist",
     "src",
-    "scripts",
+    "plugin",
     "README.md",
     "LICENSE"
   ]

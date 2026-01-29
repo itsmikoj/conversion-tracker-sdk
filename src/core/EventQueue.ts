@@ -4,7 +4,6 @@ import { Logger } from '../utils/Logger';
 
 export class EventQueue {
   private queue: Event[] = [];
-  private processing = false;
   private maxSize: number;
   private storage: StorageService;
   private logger: Logger;
