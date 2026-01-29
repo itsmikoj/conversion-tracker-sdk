@@ -1,14 +1,26 @@
 # Conversion Tracker SDK
 
-SDK profesional para tracking de conversiones en React Native con Meta Ads.
+SDK para tracking de conversiones en React Native.
 
-## 🚀 Instalación Rápida
+## Instalación Rápida
+
+Añade un archivo ".npmrc" al root de tu proyecto y colocar lo siguente:
+```bash
+@itsmikoj:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=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
+```
+
+luego instalar
 
 ```bash
 npm install @itsmikoj/conversation-tracker-sdk
+
+ó
+
+npm install git+https://github.com/itsmikoj/conversation-tracker-sdk.git
 ```
 
-## ⚙️ Configuración (app.json)
+## Configuración (app.json)
 
 ```json
 {
@@ -27,7 +39,7 @@ npm install @itsmikoj/conversation-tracker-sdk
 }
 ```
 
-## 💻 Uso Básico
+## Uso Básico
 
 ```typescript
 import { useConversionTracker, getMetaConfigFromExpo, EventType } from '@itsmikoj/conversation-tracker-sdk';
@@ -59,14 +71,14 @@ export default function App() {
 }
 ```
 
-## 📦 Rebuild Nativo
+## Rebuild Nativo
 
 ```bash
 npx expo prebuild --clean
 npx expo run:ios
 ```
 
-## 📖 Métodos Principales
+## Métodos Principales
 
 ### `useConversionTracker(config)`
 
@@ -95,7 +107,7 @@ Hook con métodos específicos para eventos comunes.
 - `trackSubscribe(type)`
 - `trackCustomEvent(name, params)`
 
-## 🎯 Tipos de Eventos
+## Tipos de Eventos
 
 ```typescript
 EventType.ADD_TO_CART
@@ -109,18 +121,6 @@ EventType.SEARCH
 EventType.START_TRIAL
 EventType.SUBSCRIBE
 ```
-
-## ⚡ Características
-
-- ✅ **Queue Offline**: Eventos se guardan y envían cuando hay conexión
-- ✅ **Reintentos Automáticos**: 3 intentos antes de fallar
-- ✅ **Batch Processing**: Agrupa eventos para optimizar red
-- ✅ **TypeScript**: Tipado completo
-- ✅ **Multi-Provider**: Facebook, Google, Apple (próximamente)
-- ✅ **Conversions API**: Tracking server-side opcional
-- ✅ **Monitoreo**: Stats y Dead Letter Queue
-
-## 🔧 Configuración Avanzada
 
 ### Con Conversions API (Opcional)
 
@@ -160,7 +160,7 @@ tracker.addMiddleware(async (event) => {
 });
 ```
 
-## 📊 Monitoreo
+## Monitoreo
 
 ```typescript
 // Ver estadísticas
@@ -172,56 +172,3 @@ console.log(stats);
 const dlq = await tracker.queue.getDeadLetterQueue();
 console.log('Eventos fallidos:', dlq);
 ```
-
-## 🔑 Credenciales de Meta
-
-### App ID y Client Token (REQUERIDOS)
-
-1. Ve a https://developers.facebook.com/apps
-2. Crea o selecciona tu app
-3. Settings → Basic
-4. Copia **App ID** y **Client Token**
-
-### Pixel ID y Access Token (OPCIONALES - solo para Conversions API)
-
-1. Ve a https://business.facebook.com/events_manager
-2. Crea un Dataset para tu app
-3. Settings → Conversions API → Generate Access Token
-
-## ⚠️ Troubleshooting
-
-### Eventos no aparecen en Meta
-
-- Espera 24-48 horas (es normal)
-- Verifica en "Activity" no en "Test Events"
-- Asegúrate de haber hecho `npx expo prebuild --clean`
-
-### Error al importar
-
-```typescript
-// ✅ Correcto
-import { useConversionTracker } from '@itsmikoj/conversation-tracker-sdk';
-
-// ❌ Incorrecto
-import { useConversionTracker } from '@itsmikoj/conversation-tracker-sdk/src';
-```
-
-### EBUSY error (Windows)
-
-Cierra VS Code y terminales, luego:
-```bash
-Remove-Item -Recurse -Force node_modules
-npm install
-```
-
-## 📚 Documentación Completa
-
-Ver `/docs/API.md` para referencia completa de todos los métodos y configuraciones.
-
-## 📄 Licencia
-
-MIT
-
-## 🆘 Soporte
-
-Issues: https://github.com/itsmikoj/conversation-tracker-sdk/issues

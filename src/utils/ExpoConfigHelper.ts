@@ -3,7 +3,6 @@ import Constants from 'expo-constants';
 export function getMetaConfigFromExpo() {
   const expoConfig = Constants.expoConfig;
 
-  // First try to find our plugin
   const ourPlugin = expoConfig?.plugins?.find((plugin: any) => {
     if (Array.isArray(plugin)) {
       return plugin[0] === '@itsmikoj/conversation-tracker-sdk';
@@ -19,7 +18,7 @@ export function getMetaConfigFromExpo() {
     };
   }
 
-  // Fallback to direct Facebook plugin
+  // Fallback
   const fbPlugin = expoConfig?.plugins?.find((plugin: any) => {
     if (Array.isArray(plugin)) {
       return plugin[0] === 'react-native-fbsdk-next';
