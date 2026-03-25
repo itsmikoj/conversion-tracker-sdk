@@ -1,10 +1,10 @@
 export enum EventType {
-  ADD_TO_CART = 'add_to_cart',
-  PURCHASE = 'purchase',
-  INITIATE_CHECKOUT = 'initiate_checkout',
-  ADD_PAYMENT_INFO = 'add_payment_info',
+  ADD_TO_CART = 'fb_mobile_add_to_cart',
+  PURCHASE = 'fb_mobile_purchase',
+  INITIATE_CHECKOUT = 'fb_mobile_initiate_checkout',
+  ADD_PAYMENT_INFO = 'fb_mobile_add_payment_info',
   
-  COMPLETE_REGISTRATION = 'complete_registration',
+  COMPLETE_REGISTRATION = 'fb_mobile_complete_registration',
   LOGIN = 'login',
   START_TRIAL = 'start_trial',
   SUBSCRIBE = 'subscribe',

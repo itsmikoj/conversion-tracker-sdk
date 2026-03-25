@@ -1,5 +1,5 @@
 {
-  "name": "@itsmikoj/conversation-tracker-sdk",
+  "name": "@itsmikoj/conversion-tracker-sdk",
   "version": "1.1.0",
   "description": "Enterprise-grade conversion tracking SDK for React Native with Meta Ads",
   "main": "lib/index.js",
@@ -34,7 +34,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/itsmikoj/conversation-tracker-sdk.git"
+    "url": "https://github.com/itsmikoj/conversion-tracker-sdk.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
