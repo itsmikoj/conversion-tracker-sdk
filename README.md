@@ -1,7 +1,6 @@
 # Conversion Tracker SDK
 
 SDK para tracking de conversiones en React Native.
-- **Website**: **[Click here](https://dashboard-web-black-nine.vercel.app)**
 
 ## Instalación Rápida
 
